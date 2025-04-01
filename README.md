@@ -1,4 +1,5 @@
 # Skyline's Personal Arch Linux Installation Guide
+![386451_arch linux_archlinux_icon](https://github.com/user-attachments/assets/c4b2689b-25a2-4336-a1e0-4de2168f9f2f)   
 
 This guide is a personalized, comprehensive Arch Linux installation tutorial for myself,
 Skyline, to guide me through the steps needed to build a customized Arch Linux system.
