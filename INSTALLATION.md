@@ -315,7 +315,7 @@ Before install we need to optimize our pacman mirrorlist with "reflector".
 
 ```bash
 # reflector --country TR --age 24 --protocol https --sort rate --save /etc/pacman.d/mirrorlist
-# pacstrap -K /mnt base base-devel linux-cachyos-hardened linux-cachyos-hardened-headers linux-cachyos-hardened-nvidia-open nvidia-utils lib32-nvidia-utils intel-ucode linux-firmware nano cryptsetup btrfs-progs dosfstools util-linux git unzip sbctl kitty networkmanager sudo
+# pacstrap -K /mnt base base-devel linux-cachyos-hardened linux-cachyos-hardened-headers linux-cachyos-hardened-nvidia-open nvidia-utils lib32-nvidia-utils linux-firmware nano cryptsetup btrfs-progs dosfstools util-linux git unzip sbctl kitty
 ```
 
 ## Generating the fstab
