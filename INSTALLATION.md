@@ -23,10 +23,20 @@ Zsh shell prompt.
 
 ## Set the Console Keyboard Layout
 
-The live environment defaults to a US keyboard layout. Change it to Swiss German:
+The live environment defaults to a US keyboard layout. Available layouts can be listed with: 
+```bash
+# localectl list-keymaps
+```
+I have US keyboard layout. 
 
 ```bash
-# loadkeys de_CH-latin1
+# loadkeys us
+```
+
+Console fonts are located in `/usr/share/kbd/consolefonts/` and can likewise be set with `setfont` omitting the path and file extension. For example, to use one of the largest fonts suitable for HiDPI screens, run: 
+
+```bash
+# setfont ter-132b
 ```
 
 ## Establishing Internet Connection
@@ -35,69 +45,34 @@ Ensure that you are connected to the internet for downloading necessary packages
 
 ### Wired Connection During Installation
 
-If you are using a wired connection, you should already be connected to the internet.
+If you are using a wired connection, you should already be connected to the internet. I have wired connection so I'm skipping Wi-Fi connection steps.
 
-### Wireless Connection During Installation
+## Verify the boot mode
+To verify the boot mode, check the UEFI bitness:
+```bash
+# cat /sys/firmware/efi/fw_platform_size
+```
+   
+If the command returns `64`, the system is booted in UEFI mode and has a 64-bit x64 UEFI.
 
-You can connect to a wireless access point using the `iwctl` command from `iwd`.
+If the command returns `32`, the system is booted in UEFI mode and has a 32-bit IA32 UEFI. While this is supported, it will limit the boot loader choice to those that support mixed mode booting.
 
-1. Check the name of your wireless interface:
+If it returns `No such file or directory`, the system may be booted in BIOS (or CSM) mode.
 
-    ```bash
-    # ip link
-    ```
+If the system did not boot in the mode you desired (UEFI vs BIOS), refer to your motherboard's manual.
 
-    You should see output similar to this:
+## Update the system clock
 
-    ```bash
-    1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN mode DEFAULT group default qlen 1000
-        link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
-    2: eno3: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc mq state UP mode DEFAULT group default qlen 1000
-        link/ether aa:bb:cc:dd:ee:ff brd ff:ff:ff:ff:ff:ff
-        altname enp8s0
-    3: enp18s0: <NO-CARRIER,BROADCAST,MULTICAST,UP> mtu 1500 qdisc mq state DOWN mode DEFAULT group default qlen 1000
-        link/ether aa:bb:cc:dd:ee:ff brd ff:ff:ff:ff:ff:ff
-    4: wlo1: <NO-CARRIER,BROADCAST,MULTICAST,UP> mtu 1500 qdisc noqueue state DOWN mode DORMANT group default qlen 1000
-        link/ether aa:bb:cc:dd:ee:ff brd ff:ff:ff:ff:ff:ff permaddr aa:bb:cc:dd:ee:ff
-        altname wlp0s20f3
-    ```
+In the live environment `systemd-timesyncd` is enabled by default and time will be synced automatically once a connection to the internet is established.
 
-    - `eno3` and `enp18s0` are the wired interfaces.
-
-    - `wlo1` is the wireless interface.
-
-2. Scan for networks:
-
-    ```bash
-    # iwctl station wlo1 scan
-    ```
-
-3. Obtain a list of scanned networks:
-
-    ```bash
-    # iwctl station wlo1 get-networks
-    ```
-
-4. Connect to your network:
-
-    ```bash
-    # iwctl station wlo1 connect [SSID]
-    ```
-
-    Replace `[SSID]` with your network's SSID. Enter the router password when prompted.
-
-### Verify Connection for Installation
-
-Ping `google.com` to confirm that you are online:
+Use `timedatectl` to ensure the system clock is synchronized:
 
 ```bash
-# ping google.com
+# timedatectl
 ```
 
-If you receive an "Unknown host" or "Destination host unreachable" response, it means
-you are not online yet. Review your network configuration and repeat the steps above.
-
 ## Partition the Disks
+
 
 Before installing Arch Linux, you need to partition the disks.
 
@@ -119,6 +94,8 @@ NAME             MAJ:MIN RM   SIZE RO TYPE MOUNTPOINTS
 ├─/dev/nvme0n1p2 259:2    0    64G  0 part
 └─/dev/nvme0n1p3 259:3    0   1.8T  0 part
 ```
+> [!NOTE]
+> If the disk does not show up, make sure the disk controller is not in RAID mode.
 
 `/dev/nvme0n1` is the main drive for me.
 
