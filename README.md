@@ -1,7 +1,7 @@
-# Bahadir's Personal Arch Linux Installation Guide
+# Skyline's Personal Arch Linux Installation Guide
 
 This guide is a personalized, comprehensive Arch Linux installation tutorial for myself,
-Bahadir, to guide me through the steps needed to build a customized Arch Linux system.
+Skyline, to guide me through the steps needed to build a customized Arch Linux system.
 
 Arch Linux is a lightweight Linux distribution, providing a bare minimum base system.
 This minimalist design allows users to include only the components they need, making it
@@ -13,21 +13,16 @@ installation with ease and confidence.
 
 ## Hardware Configuration
 
-- **Processor:** Intel Core I9-13900K (LGA 1700, 3 GHz, 24-Core)
+- **Processor:** Intel® Core™ i5-9400F 9MB Cache, 2.90 GHz up to 4.10 GHz ( 6 Threads, 6 Core )
 
-- **Graphics Card:** Sapphire Radeon RX 7900 XTX Pulse (24 GB)
+- **Graphics Card:** NVIDIA GeForce RTX™ 2060 (6 GB)
 
-- **Storage Drive:** Samsung 990 Pro (2000 GB, M.2 2280)
+- **Storage Drive:** Samsung 970 EVO Plus (1000 GB, M.2 2280), Kingston A400 (480 GB, SATA SSD)
 
-- **Memory Kit:** G.Skill Trident Z5 RGB (2 X 32GB, 6400 MHz, DDR5 RAM, DIMM)
+- **Memory Kit:** Corsair VENGEANCE® LPX 32 GB (4 X 8 GB, 3200 MHz, DDR4 DRAM, DIMM)
 
-- **Motherboard:** ASUS ROG Strix Z790-I Gaming WIFI (LGA 1700, Intel Z790, Mini ITX)
+- **Motherboard:** Asus Prime Z390-P ( LGA 1151, Intel Z390, ATX)
 
-- **CPU Cooler:** MasterLiquid ML280 Mirror CPU Liquid Cooler
-
-- **Power Supply:** V850 SFX Gold 850 Watt
-
-- **Case:** Cooler Master PC Case MasterBox NR200P (Mini ITX)
 
 ## Obtain and Verify the Installation Image
 
@@ -46,7 +41,7 @@ select a mirror to download the `.iso` and `.sig` files.
 
     ```bash
     export MIRROR_SITE="https://geo.mirror.pkgbuild.com/iso/latest"
-    export ISO_FILE="archlinux-2024.01.01-x86_64.iso"
+    export ISO_FILE="archlinux-x86_64.iso"
     export SIG_FILE="${ISO_FILE}.sig"
     ```
 
@@ -63,12 +58,12 @@ select a mirror to download the `.iso` and `.sig` files.
     gpg --keyserver-options auto-key-retrieve --verify "${SIG_FILE}"
     ```
 
-    Look for a message in the output confirming the signature's validity and the t
-    rusted status of the key, similar to this:
+    Look for a message in the output confirming the signature's validity and the
+    trusted status of the key, similar to this:
 
     ```bash
-    gpg: assuming signed data in 'archlinux-2024.01.01-x86_64.iso'
-    gpg: Signature made Mon 01 Jan 2024 05:48:11 PM CET
+    gpg: assuming signed data in 'archlinux-x86_64.iso'
+    gpg: Signature made Mon 01 Jan 2025 05:48:11 PM CET
     gpg:                using EDDSA key 3E80CA1A8B89F69CBA57D98A76A5EF9054449A5C
     gpg:                issuer "pierre@archlinux.org"
     gpg: key 76A5EF9054449A5C: public key "Pierre Schmitz <pierre@archlinux.org>" imported
@@ -82,8 +77,7 @@ select a mirror to download the `.iso` and `.sig` files.
     Primary key fingerprint: 3E80 CA1A 8B89 F69C BA57  D98A 76A5 EF90 5444 9A5C
     ```
 
-    Ensure the fingerprint in the output matches the [Master Key Signatures](
-    https://archlinux.org/master-keys/#master-sigs).
+    Ensure the fingerprint in the output matches the [Master Key Signatures](https://archlinux.org/master-keys/#master-sigs).
 
 ## Create a USB Flash Installation Medium
 
@@ -100,15 +94,15 @@ mounted:
 
     ```bash
     NAME        MAJ:MIN RM   SIZE RO TYPE MOUNTPOINTS
-    sda           8:0    0 931.5G  0 disk
-    └─sda1        8:1    0 931.5G  0 part
+    sda           8:0    0  480G  0 disk
+    └─sda1        8:1    0  480G  0 part
     sdb           8:16   1  58.6G  0 disk
     ├─sdb1        8:17   1   798M  0 part
     └─sdb2        8:18   1    15M  0 part
-    nvme0n1     259:0    0   1.8T  0 disk
+    nvme0n1     259:0    0    1T 0 disk
     ├─nvme0n1p1 259:1    0     2G  0 part /boot
     ├─nvme0n1p2 259:2    0    64G  0 part [SWAP]
-    └─nvme0n1p3 259:3    0   1.8T  0 part /
+    └─nvme0n1p3 259:3    0    1T  0 part /
     ```
 
     In my case, the USB drive name is `/dev/sdb`.
