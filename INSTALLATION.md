@@ -317,6 +317,96 @@ Before install we need to optimize our pacman mirrorlist with "reflector".
 # reflector --country TR --age 24 --protocol https --sort rate --save /etc/pacman.d/mirrorlist
 # pacstrap -K /mnt base base-devel linux-cachyos-hardened linux-cachyos-hardened-headers linux-cachyos-hardened-nvidia-open nvidia-utils lib32-nvidia-utils linux-firmware nano cryptsetup btrfs-progs dosfstools util-linux git unzip sbctl kitty
 ```
+## Check Unified Kernel
+
+```bash
+# echo "quiet rw" >/mnt/etc/kernel/cmdline
+# mkdir -p /mnt/efi/EFI/Linux
+```
+We need to change the HOOKS in mkinitcpio.conf to use systemd, so add it on Modules section.
+
+`/mnt/etc/mkinitcpio.conf`
+
+> [!NOTE]
+> The "Modules" section can be seen differently. Don't mind
+
+```bash
+MODULES=(crc32c-intel nvidia nvidia_modeset nvidia_uvm nvidia_drm)
+BINARIES=()
+FILES=()
+HOOKS=( ... .... systemd ... .. .... )
+
+```
+
+And now let's update the .preset file, to generate a UKI:
+
+`/mnt/etc/mkinitcpio.d/linux-cachyos.preset`
+
+```bash
+mkinitcpio preset file for the 'linux-cachyos' package
+
+ALL_config="/etc/mkinitcpio.conf"
+ALL_kver="/boot/vmlinuz-linux-cachyos"
+ALL_microcode=(/boot/intel-ucode.img)
+
+
+PRESETS=('default' 'fallback')
+
+#default_config="/etc/mkinitcpio.conf"
+#default_image="/boot/initramfs-linux-cachyos.img"
+default_uki="/efi/EFI/Linux/arch-linux-cachyos.efi"
+default_options="--splash /usr/share/systemd/bootctl/splash-arch.bmp"
+
+#fallback_config="/etc/mkinitcpio.conf"
+#fallback_image="/boot/initramfs-linux-cachyos-fallback.img"
+fallback_uki="/efi/EFI/Linux/arch-linux-cachyos-fallback.efi"
+fallback_options="-S autodetect"
+
+```
+And now let's generate our UKIs:
+```bash
+# arch-chroot /mnt mkinitcpio -P
+```
+In the end it says:
+`==> Unified kernel image generation successful`
+
+If we have a look into our EFI partition, we should see our UKIs:
+
+```bash
+# ls -lR /mnt/efi
+```
+## Services and Boot Loader
+
+OK, we're just about done in the archiso, we just need to enable some services, and install our bootloader:
+
+```bash
+# systemctl --root /mnt enable systemd-resolved systemd-timesyncd NetworkManager
+# systemctl --root /mnt mask systemd-networkd
+# arch-chroot /mnt bootctl install --esp-path=/efi
+# sync
+```
+
+## Secure Boot with TPM2 Unlocking
+
+```bash
+# sudo grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=cachyos --modules="tpm" --disable-shim-lock
+# systemctl reboot --firmware-setup
+```
+
+
+```bash
+# sbctl status
+Installed:  ✓ sbctl is installed
+Setup Mode: ✗ Enabled
+Secure Boot:    ✗ Disabled
+Vendor Keys:    none
+
+```
+Looks good. Let's first create and enroll our personal Secure Boot keys:
+```bash
+# sudo sbctl create-keys
+# sudo sbctl enroll-keys -m
+```
 
 ## Generating the fstab
 
