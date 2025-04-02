@@ -316,7 +316,7 @@ Before install we need to optimize our pacman mirrorlist with "reflector".
 
 ```bash
 # reflector --country TR --age 24 --protocol https --sort rate --save /etc/pacman.d/mirrorlist
-# pacstrap -K /mnt base base-devel linux-cachyos-hardened linux-cachyos-hardened-headers linux-cachyos-hardened-nvidia-open nvidia-utils lib32-nvidia-utils linux-firmware nano gvim sudo cryptsetup btrfs-progs dosfstools util-linux git unzip sbctl kitty cachyos-settings intel-ucode NetworkManager grub efibootmgr
+# pacstrap -K /mnt base base-devel linux-cachyos-hardened linux-cachyos-hardened-headers linux-cachyos-hardened-nvidia-open nvidia-utils lib32-nvidia-utils linux-firmware nano micro sudo cryptsetup btrfs-progs dosfstools util-linux git unzip sbctl kitty cachyos-settings intel-ucode NetworkManager grub efibootmgr
 ```
 ## Check Unified Kernel
 
@@ -491,9 +491,9 @@ This step allows you to execute commands as if your new system were already runn
 3. **Configuring Sudo:**
 
     Edit the `sudoers` file to grant `wheel` group members sudo privileges:
-EDITOR= nano ? neovim? vim? gvim?
+EDITOR= nano ? micro ?
     ```bash
-    # EDITOR=vim visudo
+    # EDITOR=micro visudo
     ```
 
     Uncomment the line (remove #):
