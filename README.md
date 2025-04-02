@@ -26,7 +26,9 @@ installation with ease and confidence.
 
 
 ## Obtain and Verify the Installation Image
-
+>[!CAUTION]
+>On my zsh or fish shell, the commands with {} is not working. Remove them. For example:
+>If ${ISO_FILE} not work,try  $ISO_FILE without `{}`'s
 To start, follow these steps to obtain and authenticate the installation image:
 
 1. Change the directory to `Downloads`:
