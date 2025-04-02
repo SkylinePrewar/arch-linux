@@ -106,7 +106,8 @@ Let's clean up our main drive before we create new partitions for our installati
 1. **Launch Partition Tool:**
 
     ```bash
-    fdisk /dev/nvme0n1
+
+    # fdisk /dev/nvme0n1
     ```
 
 2. **Initialize GPT:**
@@ -165,17 +166,17 @@ Now we are done partitioning the disk.
 A simple size to start with is quarter of the total system memory. 
 
 ```bash
-modprobe zram
+# modprobe zram
    ```
 ```bash
-zramctl /dev/zram0 --algorithm zstd --size "$(($(grep -Po 'MemTotal:\s*\K\d+' /proc/meminfo)/4))KiB"
+# zramctl /dev/zram0 --algorithm zstd --size "$(($(grep -Po 'MemTotal:\s*\K\d+' /proc/meminfo)/4))KiB"
 ```
 ```bash
-mkswap -U clear /dev/zram0
+# mkswap -U clear /dev/zram0
 ```
 
 ```bash
-swapon --discard --priority 100 /dev/zram0
+# swapon --discard --priority 100 /dev/zram0
 ```
 
 ### Verifying the Partitions
@@ -294,19 +295,19 @@ Before installation, you must mount the newly formatted partitions.
 Get archive with script
 
 ```bash
-curl -O https://mirror.cachyos.org/cachyos-repo.tar.xz
+# curl -O https://mirror.cachyos.org/cachyos-repo.tar.xz
 ```
 
 Extract and enter into the archive
 
 ```bash
-tar xvf cachyos-repo.tar.xz && cd cachyos-repo
+# tar xvf cachyos-repo.tar.xz && cd cachyos-repo
 ```
 
-Run script with sudo
+Run script
 
 ```bash
-sudo ./cachyos-repo.sh
+# ./cachyos-repo.sh
 ```
 
 ## Base System Installation
@@ -315,7 +316,7 @@ Before install we need to optimize our pacman mirrorlist with "reflector".
 
 ```bash
 # reflector --country TR --age 24 --protocol https --sort rate --save /etc/pacman.d/mirrorlist
-# pacstrap -K /mnt base base-devel linux-cachyos-hardened linux-cachyos-hardened-headers linux-cachyos-hardened-nvidia-open nvidia-utils lib32-nvidia-utils linux-firmware nano cryptsetup btrfs-progs dosfstools util-linux git unzip sbctl kitty cachyos-settings intel-ucode
+# pacstrap -K /mnt base base-devel linux-cachyos-hardened linux-cachyos-hardened-headers linux-cachyos-hardened-nvidia-open nvidia-utils lib32-nvidia-utils linux-firmware nano gvim sudo cryptsetup btrfs-progs dosfstools util-linux git unzip sbctl kitty cachyos-settings intel-ucode NetworkManager grub efibootmgr
 ```
 ## Check Unified Kernel
 
@@ -340,26 +341,26 @@ HOOKS=( ... .... systemd ... .. .... )
 
 And now let's update the .preset file, to generate a UKI:
 
-`/mnt/etc/mkinitcpio.d/linux-cachyos.preset`
+`/mnt/etc/mkinitcpio.d/linux-cachyos-hardened.preset`
 
 ```bash
-mkinitcpio preset file for the 'linux-cachyos' package
+mkinitcpio preset file for the 'linux-cachyos-hardened' package
 
 ALL_config="/etc/mkinitcpio.conf"
-ALL_kver="/boot/vmlinuz-linux-cachyos"
+ALL_kver="/boot/vmlinuz-linux-cachyos-hardened"
 ALL_microcode=(/boot/intel-ucode.img)
 
 
 PRESETS=('default' 'fallback')
 
 #default_config="/etc/mkinitcpio.conf"
-#default_image="/boot/initramfs-linux-cachyos.img"
-default_uki="/efi/EFI/Linux/arch-linux-cachyos.efi"
+#default_image="/boot/initramfs-linux-cachyos-hardened.img"
+default_uki="/efi/EFI/Linux/arch-linux-cachyos-hardened.efi"
 default_options="--splash /usr/share/systemd/bootctl/splash-arch.bmp"
 
 #fallback_config="/etc/mkinitcpio.conf"
-#fallback_image="/boot/initramfs-linux-cachyos-fallback.img"
-fallback_uki="/efi/EFI/Linux/arch-linux-cachyos-fallback.efi"
+#fallback_image="/boot/initramfs-linux-cachyos-hardened-fallback.img"
+fallback_uki="/efi/EFI/Linux/arch-linux-cachyos-hardened-fallback.efi"
 fallback_options="-S autodetect"
 
 ```
@@ -390,18 +391,18 @@ OK, we're just about done in the archiso, we just need to enable some services, 
  
  
 ```bash
-# pacman -Syu grub efibootmgr
-# sudo grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=cachyos --modules="tpm" --disable-shim-lock
+# grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=cachyos --modules="tpm" --disable-shim-lock
 # systemctl reboot --firmware-setup
 ```
 Generate the main GRUB configuration file:
 
-    ```bash
-    # grub-mkconfig -o /boot/grub/grub.cfg
-    ```
+```bash
+# grub-mkconfig -o /boot/grub/grub.cfg
+ ```
     
 ```bash
 # sbctl status
+
 Installed:  ✓ sbctl is installed
 Setup Mode: ✗ Enabled
 Secure Boot:    ✗ Disabled
@@ -411,30 +412,26 @@ Vendor Keys:    none
 Looks good. Let's first create and enroll our personal Secure Boot keys:
 
 ```bash
-# sudo sbctl create-keys
-# sudo sbctl enroll-keys -m
-# sudo sbctl status
-# sudo sbctl verify
-# sudo sbctl-batch-sign
-# sudo sbctl verify
+# sbctl create-keys
+# sbctl enroll-keys -m
+# sbctl status
+# sbctl verify
+# sbctl-batch-sign
+# sbctl verify
 ```
 sbctl should now be installed and we can proceed to signing the kernel images and boot manager.
 
 Let's reinstall the kernel to make sure it resigns the UKI:
 
 ```bash
-# sudo pacman -S linux-cachyos-hardened
-
-Signing EFI binaries...
-Generating EFI bundles....
-✓ Signed /efi/EFI/Linux/arch-linux-cachyos-fallback.efi
-✓ Signed /efi/EFI/Linux/arch-linux-cachyos.efi
+# pacman -S linux-cachyos-hardened
 ```
 
 Looking good. Reboot your PC now, so the Secure Boot settings will get saved. Once rebooted we need to configure automatic unlocking of the root filesystem, by binding a LUKS key to the TPM. Let's generate a new key, add it to our volume so it can be used to unlock it in addition to the existing keys, and bind this new key to PCRs 0 and 7 (the system firmware and Secure Boot state). First things first, let's generate a recovery key in case it all gets messed up some time in the future:
+
 ```bash
-# sudo systemd-cryptenroll /dev/gpt-auto-root-luks --recovery-key
-# sudo systemd-cryptenroll --tpm2-device=auto --tpm2-pcrs=0+7  /dev/gpt-auto-root-luks
+# systemd-cryptenroll /dev/gpt-auto-root-luks --recovery-key
+# systemd-cryptenroll --tpm2-device=auto --tpm2-pcrs=0+7  /dev/gpt-auto-root-luks
 ```
 
 ## Generating the fstab
@@ -455,40 +452,6 @@ Switch to the root environment of your newly installed system:
 ```
 
 This step allows you to execute commands as if your new system were already running.
-
-## Essential Package Installation
-
-Now we are ready to install the essential packages for Arch Linux.
-
-1. **NetworkManager:**
-
-    `NetworkManager` allows you to configure and manage network connections.
-
-    ```bash
-    # pacman -Syu networkmanager
-    ```
-
-    You can use it to connect to Wi-Fi or Ethernet networks after completing the Arch
-    Linux installation.
-
-2. **Vim:**
-
-    Vim is a powerful terminal text editor that you can use to modify text files.
-
-    ```bash
-    # pacman -Syu gvim
-    ```
-
-    GVim is essentially the same package as Vim with GTK/X support.
-
-3. **Sudo:**
-
-    Sudo allows specified users to execute commands as the root user or another user,
-    as specified in the `sudoers` file, enhancing security and control.
-
-    ```bash
-    # pacman -Syu sudo
-    ```
 
 ## Configuring Users and Groups
 
@@ -528,7 +491,7 @@ Now we are ready to install the essential packages for Arch Linux.
 3. **Configuring Sudo:**
 
     Edit the `sudoers` file to grant `wheel` group members sudo privileges:
-
+EDITOR= nano ? neovim? vim? gvim?
     ```bash
     # EDITOR=vim visudo
     ```
