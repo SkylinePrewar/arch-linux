@@ -211,7 +211,7 @@ boot:
 To set the hostname on your system, please follow these steps:
 
 1. Create the `/etc/hostname` file and add your desired hostname to it. For
-instance, if you want to set the hostname as `bahadir-desktop`, then run the
+instance, if you want to set the hostname as `skyline`, then run the
 following command:
 
     ```bash
