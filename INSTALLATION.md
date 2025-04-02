@@ -315,7 +315,7 @@ Before install we need to optimize our pacman mirrorlist with "reflector".
 
 ```bash
 # reflector --country TR --age 24 --protocol https --sort rate --save /etc/pacman.d/mirrorlist
-# pacstrap -K /mnt base base-devel linux-cachyos-hardened linux-cachyos-hardened-headers linux-cachyos-hardened-nvidia-open nvidia-utils lib32-nvidia-utils linux-firmware nano cryptsetup btrfs-progs dosfstools util-linux git unzip sbctl kitty
+# pacstrap -K /mnt base base-devel linux-cachyos-hardened linux-cachyos-hardened-headers linux-cachyos-hardened-nvidia-open nvidia-utils lib32-nvidia-utils linux-firmware nano cryptsetup btrfs-progs dosfstools util-linux git unzip sbctl kitty cachyos-settings intel-ucode
 ```
 ## Check Unified Kernel
 
@@ -387,13 +387,19 @@ OK, we're just about done in the archiso, we just need to enable some services, 
 ```
 
 ## Secure Boot with TPM2 Unlocking
-
+ 
+ 
 ```bash
+# pacman -Syu grub efibootmgr
 # sudo grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=cachyos --modules="tpm" --disable-shim-lock
 # systemctl reboot --firmware-setup
 ```
+Generate the main GRUB configuration file:
 
-
+    ```bash
+    # grub-mkconfig -o /boot/grub/grub.cfg
+    ```
+    
 ```bash
 # sbctl status
 Installed:  ✓ sbctl is installed
@@ -403,9 +409,32 @@ Vendor Keys:    none
 
 ```
 Looks good. Let's first create and enroll our personal Secure Boot keys:
+
 ```bash
 # sudo sbctl create-keys
 # sudo sbctl enroll-keys -m
+# sudo sbctl status
+# sudo sbctl verify
+# sudo sbctl-batch-sign
+# sudo sbctl verify
+```
+sbctl should now be installed and we can proceed to signing the kernel images and boot manager.
+
+Let's reinstall the kernel to make sure it resigns the UKI:
+
+```bash
+# sudo pacman -S linux-cachyos-hardened
+
+Signing EFI binaries...
+Generating EFI bundles....
+✓ Signed /efi/EFI/Linux/arch-linux-cachyos-fallback.efi
+✓ Signed /efi/EFI/Linux/arch-linux-cachyos.efi
+```
+
+Looking good. Reboot your PC now, so the Secure Boot settings will get saved. Once rebooted we need to configure automatic unlocking of the root filesystem, by binding a LUKS key to the TPM. Let's generate a new key, add it to our volume so it can be used to unlock it in addition to the existing keys, and bind this new key to PCRs 0 and 7 (the system firmware and Secure Boot state). First things first, let's generate a recovery key in case it all gets messed up some time in the future:
+```bash
+# sudo systemd-cryptenroll /dev/gpt-auto-root-luks --recovery-key
+# sudo systemd-cryptenroll --tpm2-device=auto --tpm2-pcrs=0+7  /dev/gpt-auto-root-luks
 ```
 
 ## Generating the fstab
@@ -475,22 +504,22 @@ Now we are ready to install the essential packages for Arch Linux.
 
     For everyday tasks, it's best to use a non-root user.
 
-    - I use `bahadir` as the username for the new user account:
+    - I use `skyline` as the username for the new user account:
 
         ```bash
-        # useradd -m bahadir
+        # useradd -m skyline
         ```
 
     - Set the password for the new user account:
 
         ```bash
-        # passwd bahadir
+        # passwd skyline
         ```
 
     - Add the new user account to the `wheel` group:
 
         ```bash
-        # gpasswd -a bahadir wheel
+        # gpasswd -a skyline wheel
         ```
 
         The `wheel` group is the administration group and is commonly used to grant
@@ -512,79 +541,6 @@ Now we are ready to install the essential packages for Arch Linux.
 
     Save the file and exit the editor.
 
-## Boot Loader Setup: GRUB
-
-The GRUB boot loader is used to load the operating system at boot time.
-
-1. **Package Installation:**
-
-    Install the `grub` and `efibootmgr` packages:
-
-    ```bash
-    # pacman -Syu grub efibootmgr
-    ```
-
-2. **EFI Application Installation:**
-
-    Install the GRUB EFI application:
-
-    ```bash
-    # grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB --modules="tpm" --disable-shim-lock
-    ```
-
-3. **Configuration:**
-
-    Generate the main GRUB configuration file:
-
-    ```bash
-    # grub-mkconfig -o /boot/grub/grub.cfg
-    ```
-
-4. **Microcode:**
-
-    - For Intel CPUs, install the microcode updates for enhanced stability and security:
-
-        ```bash
-        # pacman -Syu intel-ucode
-        ```
-
-    - Regenerate the GRUB configuration to activate loading the microcode update:
-
-        ```bash
-        # grub-mkconfig -o /boot/grub/grub.cfg
-        ```
-
-## User Interface Installation
-
-### Desktop Environment: GNOME
-
-GNOME is a desktop environment that is composed entirely of free and open-source
-software. The default display is Wayland instead of Xorg.
-
-Install the `gnome` group that contains the base GNOME desktop and the well-integrated
-core applications:
-
-```bash
-# pacman -Syu gnome
-```
-
-During the installation process:
-
-- If prompted to select the packages from the group, press <kbd>Enter</kbd> to install
-all packages.
-
-- If prompted to select a provider for emoji-font, choose `noto-fonts-emoji`.
-
-- If prompted to select a provider for jack, choose `pipewire-jack`.
-
-### Display Manager: GNOME Display Manager (GDM)
-
-The display manager included in gnome is GDM. If you want GNOME to start automatically
-on next boot, enable `gdm.service`:
-
-```bash
-# systemctl enable gdm.service
-```
 
 ## Network Configuration
 
