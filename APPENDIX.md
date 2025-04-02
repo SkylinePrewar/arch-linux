@@ -20,40 +20,7 @@ repository databases and upgrade the system:
 2. Once the upgrade is complete, restart your system to ensure that all upgrades are
 applied to existing processes.
 
-### Upgrading Themes and Background Images
 
-To update themes, first navigate to the directory containing the package. Then, update
-the files and changes using the `git pull` command. Finally, follow the necessary steps
-or execute the appropriate scripts to install the package. For background images, just
-copy them from Google Drive.
-
-1. The following example demonstrates how to update packages inside `~/git` directory:
-
-    ```bash
-    # Update Qogir-theme
-    cd ~/git/Qogir-theme && git pull
-    sudo ./install.sh --dest "/usr/share/themes" --uninstall
-    sudo ./install.sh --dest "/usr/share/themes" --theme default --color dark --tweaks round
-    git clean -dfx
-    # Update Qogir-icon-theme
-    cd ~/git/Qogir-icon-theme   && git pull
-    sudo ./install.sh --dest "/usr/share/icons" --theme default --color all
-    git clean -dfx
-    # Update single monitor wallpapers
-    cp -r ~/"Google Drive"/Resources/Wallpapers/16x9 ~/Downloads
-    sudo sh -c 'rm -rf /usr/share/backgrounds/single-monitor/* && cp /home/Bahadir/Downloads/16x9/* /usr/share/backgrounds/single-monitor/'
-    rm -r ~/Downloads/16x9
-    # Update dual monitor wallpapers
-    cp -r ~/"Google Drive"/Resources/Wallpapers/32x9 ~/Downloads
-    sudo sh -c 'rm -rf /usr/share/backgrounds/dual-monitor/* && cp /home/Bahadir/Downloads/32x9/* /usr/share/backgrounds/dual-monitor/'
-    rm -r ~/Downloads/32x9
-    ```
-
-    This command uninstalls packages, updates them with `git pull`, reinstalls, and
-    cleans up untracked files in each subdirectory.
-
-2. Once the upgrade is complete, restart your system to ensure that all upgrades are
-applied to existing processes.
 
 ### Upgrading the AUR Packages
 
@@ -242,52 +209,17 @@ your computer:
     $ find . -type f \( -iname \*.jpg -o -iname \*.png -o -iname \*.jpeg -o -iname \*.gif -o -iname \*.bmp -o -iname \*.tif -o -iname \*.tiff -o -iname \*.jfif -o -iname \*.webp -o -iname \*.heif -o -iname \*.indd -o -iname \*.ai -o -iname \*.eps -o -iname \*.mp4 -o -iname \*.avi -o -iname \*.mkv -o -iname \*.flv -o -iname \*.mov -o -iname \*.wmv -o -iname \*.vob -o -iname \*.mng -o -iname \*.qt -o -iname \*.yuv -o -iname \*.rm -o -iname \*.rmvb -o -iname \*.asf -o -iname \*.amv -o -iname \*.mpg -o -iname \*.mpeg -o -iname \*.m4v -o -iname \*.svi -o -iname \*.3gp -o -iname \*.3g2 \) -exec mv -i {} ~/Pictures/Import/ \;
     ```
 
-## Managing Network Drives
+## Managing Network
 
-### ETH Zurich Network Drives
+### NextDNS and Zapret
 
-To connect to your ETH Zurich network drive, your computer must have an active
-VPN connection to ETH Zurich.
+Go to and log-in 
 
-1. Install the `cifs-utils` package, which is required for mounting ETH Zurich
-network drives:
+`https://my.nextdns.io/login`
 
-    ```bash
-    $ sudo pacman -S cifs-utils
-    ```
+Copy and Paste commands at `Linux` and `Browser` sections. Follow the instructions.
 
-2. Create a mount point where the network drive should be connected to. For
-example `/run/media/Bahadir/ETH Zurich Software`:
-
-    ```bash
-    $ sudo mkdir -p /run/media/Bahadir/"ETH Zurich Software"
-    ```
-
-3. Mount the network drive using the mount command with the appropriate options:
-
-    ```bash
-    $ sudo mount -t cifs -o username=domainuser,domain=D,vers=2.0,uid=Bahadir,gid=Bahadir server_address /run/media/Bahadir/"ETH Zurich Software"
-    ```
-
-    Replace the following placeholders with your respective values:
-
-    - `domainuser` = ETHZ username
-
-    - `server_address` = ETHZ network drive address
-    (e.g., `//software.ethz.ch/domainuser$`)
-
-4. Enter the sudo password and the ETHZ user password when prompted. The
-network drive will now be connected to the
-`/run/media/Bahadir/ETH Zurich Software` directory, and you can work with
-this directory like a local one.
-
-5. When you no longer need access to the network drive, disconnect it using
-the umount command:
-
-    ```bash
-    $ sudo umount /run/media/Bahadir/"ETH Zurich Software" && \
-    sudo rm -rf /run/media/Bahadir/"ETH Zurich Software"
-    ```
+Install `zapret` package and watch how to install youtube videos.
 
 ## Set Up System Backup
 
