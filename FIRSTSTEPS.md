@@ -7,17 +7,12 @@ considerations such as currency denomination, numerology, and character sets.
 
 1. **Enable Required Locales:**
 
-    Uncomment the lines for German, English, Turkish and Vietnamese locales in
+    Uncomment the lines for English locales in
     `/etc/locale.gen`:
 
     ```bash
-    sudo sed -i -e 's/#\(de_CH\.UTF-8 UTF-8\)/\1/' \
-    -e 's/#\(de_CH ISO-8859-1\)/\1/' \
-    -e 's/#\(en_US\.UTF-8 UTF-8\)/\1/' \
-    -e 's/#\(en_US ISO-8859-1\)/\1/' \
-    -e 's/#\(tr_TR\.UTF-8 UTF-8\)/\1/' \
-    -e 's/#\(tr_TR ISO-8859-9\)/\1/' \
-    -e 's/#\(vi_VN UTF-8\)/\1/' /etc/locale.gen
+    sudo sed -i -e 's/#\(en_US\.UTF-8 UTF-8\)/\1/' \
+    /etc/locale.gen
     ```
 
 2. **Verify Locales:**
@@ -25,7 +20,7 @@ considerations such as currency denomination, numerology, and character sets.
     Check the contents of the `/etc/locale.gen` file and correct any errors:
 
     ```bash
-    sudo vim /etc/locale.gen
+    sudo micro /etc/locale.gen
     ```
 
 3. **Generate Locales:**
@@ -44,11 +39,11 @@ considerations such as currency denomination, numerology, and character sets.
         sudo localectl set-locale LANG=en_US.UTF-8
         ```
 
-    - Configure the console and X11 keyboard layouts to Swiss German:
+    - Configure the console and X11 keyboard layouts to US:
 
         ```bash
-        sudo localectl set-keymap --no-convert de_CH-latin1
-        sudo localectl set-x11-keymap --no-convert ch
+        sudo localectl set-keymap --no-convert us
+        sudo localectl set-x11-keymap --no-convert us
         ```
 
 5. **Review Localization Settings:**
@@ -62,9 +57,6 @@ considerations such as currency denomination, numerology, and character sets.
 6. **Restart Computer:**
 
     Reboot the computer to apply the changes.
-
-## Display and Keyboard Configuration
-
 
 ## Enable Arch User Repository (AUR)
 
@@ -230,7 +222,7 @@ following command:
 the following command:
 
     ```bash
-    sudo vim /etc/hostname
+    sudo micro /etc/hostname
     ```
 
     Ensure that the file contains only the desired hostname as shown below:
@@ -261,7 +253,7 @@ file maps hostnames to IP addresses:
 following command:
 
     ```bash
-    sudo vim /etc/hosts
+    sudo micro /etc/hosts
     ```
 
     Ensure that the file contains the following entries:
